@@ -1,16 +1,21 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from pydantic import BaseModel
 from transformers import pipeline
 import torch
+import os
 
 app = FastAPI()
 
-# Load Gemma 3 (1B) instruction-tuned model
+# Load Hugging Face token from environment variable
+hf_token = os.getenv("HUGGINGFACEHUB_API_TOKEN")
+
+# Load Gemma 3B (Instruction-tuned) with auth
 pipe = pipeline(
     "text-generation",
     model="google/gemma-3-1b-it",
     device=0 if torch.cuda.is_available() else -1,
-    torch_dtype=torch.bfloat16 if torch.cuda.is_available() else torch.float32
+    torch_dtype=torch.bfloat16 if torch.cuda.is_available() else torch.float32,
+    token=hf_token
 )
 
 class ChatRequest(BaseModel):
